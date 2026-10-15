@@ -17,8 +17,9 @@
 ## Current Active Phase
 
 - Frontend build against `CONTRACT.md`.
-- Build the evaluation corpus (`data/documents/` + `data/ground_truth.json`) and
-  run `npm run eval` to replace the placeholder figures in `docs/submission.md`.
+- Expand the current 8-document evaluation corpus to 30 documents and run
+  `npm run eval:run` against the live backend to replace the placeholder
+  figures in `docs/submission.md`.
 - Verify the five Evolus endpoint paths against the live API reference and clear
   the `TODO` markers in `src/services/evolusClient.js`.
 - Run one document end-to-end against a live AMD Developer Cloud vLLM endpoint.

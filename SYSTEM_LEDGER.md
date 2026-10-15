@@ -6,6 +6,7 @@
 
 - **Active Phase:** Phase 5 — cleanup, documentation truth, evaluation run.
 - **Tests:** 79 passing across 5 suites (`npm test`).
+- **Evaluation:** `ai/eval/run_eval.py` runs the 30-PDF synthetic corpus against the backend API; corpus integrity is verified, but no live pipeline evaluation has been recorded.
 - **Server:** boots, serves 9 endpoints, healthy without Docker.
 - **Database:** MongoDB required for document endpoints; returns an actionable
   503 when unreachable. Orders and metrics degrade gracefully.
@@ -23,6 +24,7 @@
 | vLLM client | Timeout, retry, prompt sanitisation, token accounting |
 | Seed data | 8 suppliers, 7 purchase orders, aligned to the demo scenarios |
 | Scenarios | All seven mock scenarios reach their documented status, asserted in `tests/scenarios.test.js` |
+| M5 evaluation runner | Uploads the ground-truth corpus through the backend API and reports field accuracy, error catch rate, clean-document false alarms, status accuracy, and elapsed time |
 | JSON fixtures | Every `.json` file parses; enforced by `tests/fixtures.test.js` |
 
 ## Corrections Made
@@ -75,9 +77,11 @@ These are real and not yet addressed. None blocks the demo.
    purchase order without conversion.
 7. **No PDF content verification.** `assertPdfMagic` is exported but not yet
    wired into the upload route.
-8. **Evaluation metrics not generated.** `data/documents/` and
-   `data/ground_truth.json` do not exist, so `npm run eval` cannot run and the
-   accuracy figures in `docs/submission.md` remain placeholders.
+8. **Evaluation metrics not generated.** Thirty synthetic PDFs and matching
+   ground truth now exist, and `npm run eval:run` can submit them to a running
+   backend. A live evaluation report is still outstanding; use a live
+   extraction workflow because Evolus mock mode returns the same fixture for
+   every upload.
 9. **Frontend not implemented.** Owned by Moyeon; `CONTRACT.md` is the
    reference. `docker-compose.yml` still has the frontend service commented out.
 10. **`Supplier.isApproved` is never consulted.** A supplier flagged

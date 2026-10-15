@@ -12,7 +12,9 @@
     "check:evolus": "npm --prefix backend run check:evolus",
     "check:vllm": "npm --prefix backend run check:vllm",
     "batch": "node scripts/run_batch.js",
-    "eval": "node scripts/compute_eval.js"
+    "eval": "node scripts/compute_eval.js",
+    "eval:run": "python ai/eval/run_eval.py",
+    "eval:test": "python -m unittest discover -s ai/eval -p test_run_eval.py"
   },
   "author": "Ammar",
   "license": "MIT",

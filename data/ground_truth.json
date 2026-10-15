@@ -1,0 +1,597 @@
+[
+  {
+    "fileName": "invoice-clean-001.pdf",
+    "supplierName": "Alpha Supplies",
+    "extracted": {
+      "invoiceNumber": "INV-1001",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 242
+    },
+    "expectedStatus": "auto_approved",
+    "issues": []
+  },
+  {
+    "fileName": "invoice-clean-002.pdf",
+    "supplierName": "Theta Instruments",
+    "extracted": {
+      "invoiceNumber": "INV-5004-C",
+      "poNumber": "PO-5004",
+      "currency": "USD",
+      "subtotal": 20,
+      "tax": 2,
+      "total": 22
+    },
+    "expectedStatus": "auto_approved",
+    "issues": []
+  },
+  {
+    "fileName": "invoice-total-mismatch.pdf",
+    "supplierName": "Omega Supplies",
+    "extracted": {
+      "invoiceNumber": "INV-2002",
+      "poNumber": "PO-3002",
+      "currency": "USD",
+      "subtotal": 100,
+      "tax": 22,
+      "total": 115
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "TOTAL_MISMATCH",
+        "severity": "high",
+        "message": "Total (115.0) does not match subtotal + tax (122.0)"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-price-mismatch.pdf",
+    "supplierName": "Theta Instruments",
+    "extracted": {
+      "invoiceNumber": "INV-5004",
+      "poNumber": "PO-5004",
+      "currency": "USD",
+      "subtotal": 30,
+      "tax": 3,
+      "total": 33
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "PRICE_MISMATCH",
+        "severity": "medium",
+        "message": "Unit price (0.15) exceeds PO unit price (0.11)"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-qty-mismatch.pdf",
+    "supplierName": "Kappa Enterprises",
+    "extracted": {
+      "invoiceNumber": "INV-6005",
+      "poNumber": "PO-6005",
+      "currency": "USD",
+      "subtotal": 120,
+      "tax": 12,
+      "total": 132
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "QTY_MISMATCH",
+        "severity": "medium",
+        "message": "Quantity (12) exceeds PO quantity (10)"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-duplicate.pdf",
+    "supplierName": "Alpha Supplies",
+    "extracted": {
+      "invoiceNumber": "INV-1001",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 242
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "DUPLICATE_INVOICE",
+        "severity": "high",
+        "message": "Invoice INV-1001 has already been processed"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-bank-changed.pdf",
+    "supplierName": "Lambda Supplies",
+    "extracted": {
+      "invoiceNumber": "INV-7006",
+      "poNumber": "PO-7006",
+      "currency": "USD",
+      "subtotal": 90,
+      "tax": 9,
+      "total": 99
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "BANK_DETAILS_CHANGED",
+        "severity": "high",
+        "message": "Bank account does not match vendor master record"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-low-confidence.pdf",
+    "supplierName": "Sigma Parts",
+    "extracted": {
+      "invoiceNumber": "INV-4003",
+      "poNumber": "PO-4003",
+      "currency": "USD",
+      "subtotal": 50,
+      "tax": 5,
+      "total": 55
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "LOW_CONFIDENCE",
+        "severity": "low",
+        "message": "Extraction confidence 0.82 is below threshold 0.90"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-clean-009.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-009",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 242
+    },
+    "expectedStatus": "auto_approved",
+    "issues": []
+  },
+  {
+    "fileName": "invoice-clean-010.pdf",
+    "supplierName": "Kappa Enterprises",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-010",
+      "poNumber": "PO-6005",
+      "currency": "USD",
+      "subtotal": 100,
+      "tax": 10,
+      "total": 110
+    },
+    "expectedStatus": "auto_approved",
+    "issues": []
+  },
+  {
+    "fileName": "invoice-clean-011.pdf",
+    "supplierName": "Omega Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-011",
+      "poNumber": "PO-3002",
+      "currency": "USD",
+      "subtotal": 150,
+      "tax": 0,
+      "total": 150
+    },
+    "expectedStatus": "auto_approved",
+    "issues": []
+  },
+  {
+    "fileName": "invoice-total-012.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-012",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 247
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "TOTAL_MISMATCH",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-total-013.pdf",
+    "supplierName": "Kappa Enterprises",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-013",
+      "poNumber": "PO-6005",
+      "currency": "USD",
+      "subtotal": 100,
+      "tax": 10,
+      "total": 115
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "TOTAL_MISMATCH",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-total-014.pdf",
+    "supplierName": "Lambda Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-014",
+      "poNumber": "PO-7006",
+      "currency": "USD",
+      "subtotal": 90,
+      "tax": 9,
+      "total": 104
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "TOTAL_MISMATCH",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-total-015.pdf",
+    "supplierName": "Omega Banking",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-015",
+      "poNumber": "PO-8007",
+      "currency": "USD",
+      "subtotal": 500,
+      "tax": 50,
+      "total": 555
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "TOTAL_MISMATCH",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-quantity-016.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-016",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 225,
+      "tax": 17,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "QTY_MISMATCH",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-quantity-017.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-017",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 230,
+      "tax": 12,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "QTY_MISMATCH",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-quantity-018.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-018",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 235,
+      "tax": 7,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "QTY_MISMATCH",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-price-019.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-019",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 225,
+      "tax": 17,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "PRICE_MISMATCH",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-price-020.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-020",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 230,
+      "tax": 12,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "PRICE_MISMATCH",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-price-021.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-021",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 240,
+      "tax": 2,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "PRICE_MISMATCH",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-missing-po-022.pdf",
+    "supplierName": "Omega Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-022",
+      "poNumber": null,
+      "currency": "USD",
+      "subtotal": 150,
+      "tax": 0,
+      "total": 150
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "MISSING_PO",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-missing-po-023.pdf",
+    "supplierName": "Kappa Enterprises",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-023",
+      "poNumber": null,
+      "currency": "USD",
+      "subtotal": 100,
+      "tax": 10,
+      "total": 110
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "MISSING_PO",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-duplicate-024.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-1001",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 242
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "DUPLICATE_INVOICE",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-duplicate-025.pdf",
+    "supplierName": "Alpha Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-1001",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 242
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "DUPLICATE_INVOICE",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-unknown-supplier-026.pdf",
+    "supplierName": "Unregistered Sample Supplier 26",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-026",
+      "poNumber": "PO-3002",
+      "currency": "USD",
+      "subtotal": 150,
+      "tax": 0,
+      "total": 150
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "UNKNOWN_SUPPLIER",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-unknown-supplier-027.pdf",
+    "supplierName": "Unregistered Sample Supplier 27",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-027",
+      "poNumber": "PO-2001",
+      "currency": "USD",
+      "subtotal": 220,
+      "tax": 22,
+      "total": 242
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "UNKNOWN_SUPPLIER",
+        "severity": "medium"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-bank-change-028.pdf",
+    "supplierName": "Sigma Parts",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-028",
+      "poNumber": "PO-4003",
+      "currency": "USD",
+      "subtotal": 55,
+      "tax": 0,
+      "total": 55
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "BANK_DETAILS_CHANGED",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-bank-change-029.pdf",
+    "supplierName": "Lambda Supplies",
+    "language": "it",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-029",
+      "poNumber": "PO-7006",
+      "currency": "USD",
+      "subtotal": 90,
+      "tax": 9,
+      "total": 99
+    },
+    "expectedStatus": "rejected",
+    "issues": [
+      {
+        "type": "BANK_DETAILS_CHANGED",
+        "severity": "high"
+      }
+    ]
+  },
+  {
+    "fileName": "invoice-low-confidence-030.pdf",
+    "supplierName": "Sigma Parts",
+    "language": "en",
+    "type": "invoice",
+    "extracted": {
+      "invoiceNumber": "INV-EVAL-030",
+      "poNumber": "PO-4003",
+      "currency": "USD",
+      "subtotal": 55,
+      "tax": 0,
+      "total": 55
+    },
+    "expectedStatus": "needs_review",
+    "issues": [
+      {
+        "type": "LOW_CONFIDENCE",
+        "severity": "low"
+      }
+    ]
+  }
+]

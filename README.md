@@ -153,8 +153,16 @@ Evolus and vLLM are pinned to mock mode and the webhook secret is pinned by
 | `npm run mock` | Offline mock API for frontend work |
 | `npm run batch` | Upload a document corpus and record results |
 | `npm run eval` | Compute accuracy metrics against ground truth |
+| `npm run eval:run` | Upload the full PDF corpus to the live backend and compare results with ground truth |
+| `npm run eval:test` | Run the offline tests for the M5 evaluation runner |
 | `npm run check:evolus` | Verify Evolus credentials |
 | `npm run check:vllm` | Verify the vLLM endpoint |
+
+`npm run eval:run` requires the backend, MongoDB, and a live extraction workflow.
+It uploads documents and writes to the backend database, so use it only when
+those services are ready. Set `BACKEND_URL` if the backend is not at
+`http://localhost:3000`. To save the full report, run
+`npm run eval:run -- --output ai/eval/evaluation-report.json`.
 
 ---
 
