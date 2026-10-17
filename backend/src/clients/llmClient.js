@@ -110,7 +110,7 @@ function parseResponse(text) {
 async function generate({ language, supplierName, issues, extracted = {} }) {
   const endpoint = resolveEndpoint();
   const apiKey = process.env.VLLM_API_KEY;
-  const model = process.env.VLLM_MODEL || 'llama2-70b';
+  const model = process.env.VLLM_MODEL || 'meta-llama/Llama-3.2-1B-Instruct';
 
   const safeSupplier = sanitize(supplierName);
   const safeLanguage = sanitize(language, 20);

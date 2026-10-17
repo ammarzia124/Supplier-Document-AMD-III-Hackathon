@@ -418,10 +418,10 @@ export const MOCK_METRICS = {
   falseAlarmRate: 0.08,
   minutesSavedPerDoc: 4.2,
   gpu: {
-    name: 'AMD Radeon Instinct MI250',
-    model: 'Mistral-7B-Instruct-v0.3',
-    tokensPerSecond: 47,
-    requestsPerMinute: 28,
+    name: 'AMD ROCm / Edge Inference',
+    model: 'meta-llama/Llama-3.2-1B-Instruct',
+    tokensPerSecond: 128,
+    requestsPerMinute: 65,
   },
   costPerDocument: 0.014,
 }

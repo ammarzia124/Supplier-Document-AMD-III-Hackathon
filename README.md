@@ -48,8 +48,8 @@ defaults to `mock`, so no credentials are needed for local development.
 | `EVOLUS_BASE_URL` | `https://api.evolus.ai/api/v1` | Evolus API root |
 | `EVOLUS_WEBHOOK_SECRET` | — | **Required in prod.** Webhook fails closed with 503 when unset |
 | `PUBLIC_BASE_URL` | `http://localhost:3000` | Must be reachable by Evolus for callbacks |
-| `VLLM_BASE_URL` | `http://localhost:8000/v1` | AMD vLLM endpoint; `/chat/completions` is appended |
-| `VLLM_MODEL` | `meta-llama/Llama-2-70b-chat-hf` | Model served on ROCm |
+| `VLLM_BASE_URL` | `http://localhost:8000/v1` | vLLM / OpenAI-compatible endpoint; `/chat/completions` is appended |
+| `VLLM_MODEL` | `meta-llama/Llama-3.2-1B-Instruct` | Lightweight open-weights model for explanation & multilingual reply |
 | `CONFIDENCE_MIN` | `0.90` | Below this, a field forces human review |
 | `AMOUNT_RISK_LIMIT` | `5000` | At or above this total, a document is held for review |
 

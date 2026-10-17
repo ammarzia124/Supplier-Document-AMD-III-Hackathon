@@ -12,10 +12,10 @@
   "falseAlarmRate": 0.009,
   "minutesSavedPerDoc": 4.2,
   "gpu": {
-    "name": "AMD Radeon Instinct MI250",
-    "model": "Llama-2-70B",
-    "tokensPerSecond": 4700,
-    "requestsPerMinute": 28
+    "name": "AMD ROCm / Edge Acceleration",
+    "model": "Llama-3.2-1B-Instruct",
+    "tokensPerSecond": 128,
+    "requestsPerMinute": 65
   },
   "costPerDocument": 0.014
 }
