@@ -12,6 +12,10 @@ const { runAllRules } = require('../rules');
 const { executeWorkflow, getExecution, runAiTool } = require('./evolusClient');
 const logger = require('../utils/logger');
 const { generate } = require('../clients/llmClient');
+const { extractFromPdf } = require('./localExtractor');
+
+// When EXTRACTION_MODE=local, bypass Evolus and use the local LLM extractor.
+const EXTRACTION_MODE = (process.env.EXTRACTION_MODE || 'mock').toLowerCase();
 
 const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'http://localhost:3000';
 
@@ -56,11 +60,61 @@ async function start(document, fileBuffer, fileName, options = {}) {
     tempFilePath = makeTempFilePath(documentId, fileBuffer);
     fs.writeFileSync(tempFilePath, fileBuffer);
 
+    // ── LOCAL extraction path ──────────────────────────────────────────────
+    // When EXTRACTION_MODE=local, extract directly from the PDF using the
+    // local LLM (llama3.2:1b via Ollama) instead of the Evolus cloud workflow.
+    if (EXTRACTION_MODE === 'local') {
+      logger.info({ documentId, fileName }, 'Local extraction mode: using pdf-parse + local LLM');
+
+      await Document.findOneAndUpdate(
+        { id: documentId },
+        { status: 'processing' }
+      );
+
+      // Run extraction asynchronously so the HTTP response returns immediately.
+      setImmediate(async () => {
+        try {
+          const normalized = await extractFromPdf({
+            filePath: tempFilePath,
+            fileName,
+            language: options.language || 'en',
+          });
+          await finalizeFromEvolus(documentId, normalized);
+        } catch (err) {
+          logger.error({ documentId, err: err.message }, 'Local extraction failed');
+          await Document.findOneAndUpdate(
+            { id: documentId },
+            {
+              status: 'needs_review',
+              ruleExplanation: 'Local extraction could not complete.',
+              explanation: `Extraction error: ${err.message}`,
+              issues: [{
+                type: 'LOW_CONFIDENCE',
+                severity: 'low',
+                field: 'extraction',
+                message: `Local PDF extraction failed: ${err.message}`
+              }],
+              timing: { totalMs: Date.now() - startTime, modelMs: 0 }
+            }
+          );
+        } finally {
+          if (tempFilePath && fs.existsSync(tempFilePath)) {
+            try { fs.unlinkSync(tempFilePath); } catch (_) {}
+          }
+        }
+      });
+
+      return { status: 'processing' };
+    }
+
+    // ── Evolus / mock path (unchanged) ────────────────────────────────────
     const callbackUrl = `${PUBLIC_BASE_URL}/api/webhooks/evolus?docId=${encodeURIComponent(documentId)}`;
 
     logger.info({ documentId, callbackUrl }, 'Starting Evolus workflow execution');
     const execResponse = await executeWorkflow({
       filePath: tempFilePath,
+      fileName,
+      documentId,
       language: options.language || 'en',
       callbackUrl
     });
@@ -102,7 +156,8 @@ async function start(document, fileBuffer, fileName, options = {}) {
 
     return { error: error.message };
   } finally {
-    if (tempFilePath && fs.existsSync(tempFilePath)) {
+    // Only clean up in the Evolus path; local path cleans up in setImmediate.
+    if (EXTRACTION_MODE !== 'local' && tempFilePath && fs.existsSync(tempFilePath)) {
       try { fs.unlinkSync(tempFilePath); } catch (_) {}
     }
   }
@@ -269,20 +324,35 @@ async function finalizeFromEvolus(documentId, normalized) {
       amountRiskLimit
     });
 
-    // 3. AI Tool: PII Redaction. Failure is recorded rather than silently
-    // swallowed, so a missing redacted artefact is visible downstream.
+    // 3. PII Redaction.
+    // In local mode: mask the bank account field directly in memory.
+    //   No external call is made, no mock URL is stored, and no fake
+    //   storage.mock.local link appears in the UI.
+    // In Evolus/mock mode: delegate to the Evolus AI tool as before.
     let redactedFileUrl = null;
     let redactionError = null;
-    try {
-      const redactionRes = await runAiTool('pii-redaction', {
-        documentId,
-        supplierName,
-        bankAccount: extracted.bankAccount
-      });
-      redactedFileUrl = redactionRes.redactedFileUrl || null;
-    } catch (err) {
-      redactionError = err.message;
-      logger.warn({ documentId, err: err.message }, 'PII redaction tool execution failed');
+
+    if (EXTRACTION_MODE === 'local') {
+      // Mask bank account: keep first 4 and last 4 chars, replace middle with ****
+      if (extracted.bankAccount) {
+        const raw = String(extracted.bankAccount);
+        const visible = Math.min(4, Math.floor(raw.length / 3));
+        extracted.bankAccount =
+          raw.slice(0, visible) + '****' + raw.slice(-visible);
+      }
+      logger.info({ documentId }, 'Local PII masking applied to bankAccount field');
+    } else {
+      try {
+        const redactionRes = await runAiTool('pii-redaction', {
+          documentId,
+          supplierName,
+          bankAccount: extracted.bankAccount
+        });
+        redactedFileUrl = redactionRes.redactedFileUrl || null;
+      } catch (err) {
+        redactionError = err.message;
+        logger.warn({ documentId, err: err.message }, 'PII redaction tool execution failed');
+      }
     }
 
     // 4. Persist the deterministic outcome BEFORE calling the LLM.
@@ -309,6 +379,12 @@ async function finalizeFromEvolus(documentId, normalized) {
       modelMs: normalized.timing?.modelMs ?? 0
     };
     doc.costEstimate = null;
+    // Store local model telemetry for frontend display (AMD Hackathon requirement)
+    if (normalized.localModel) {
+      doc.localModel       = normalized.localModel;
+      doc.tokensPerSecond  = normalized.tokensPerSecond ?? null;
+      doc.totalTokens      = normalized.totalTokens ?? null;
+    }
 
     await doc.save();
     logger.info({ documentId, status: doc.status }, 'Document finalized by rules engine');
@@ -332,7 +408,11 @@ async function finalizeFromEvolus(documentId, normalized) {
             // so an empty completion cannot erase the rule explanation.
             explanation: llmResult.explanation || deterministicExplanation,
             'timing.modelMs': llmResult.modelMs ?? doc.timing.modelMs,
-            costEstimate: llmResult.costEstimate ?? null
+            costEstimate: llmResult.costEstimate ?? null,
+            // Update tokens/sec from the reply-generation call if not already set
+            ...(llmResult.tokensPerSecond != null && !doc.tokensPerSecond
+              ? { tokensPerSecond: llmResult.tokensPerSecond, totalTokens: llmResult.totalTokens }
+              : {})
           }
         );
       } catch (llmErr) {

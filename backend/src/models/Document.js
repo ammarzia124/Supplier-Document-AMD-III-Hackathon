@@ -88,6 +88,11 @@ const DocumentSchema = new mongoose.Schema({
     modelMs: { type: Number, default: null }
   },
   costEstimate: { type: Number, default: null },
+  // Local LLM telemetry — populated when EXTRACTION_MODE=local (Ollama / llama3.2:1b).
+  // Displayed on the frontend as required by the AMD Hackathon judging criteria.
+  localModel:      { type: String, default: null },
+  tokensPerSecond: { type: Number, default: null },
+  totalTokens:     { type: Number, default: null },
   auditLog: [{
     action: { type: String, required: true },
     note: { type: String, default: null },

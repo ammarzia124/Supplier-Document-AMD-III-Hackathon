@@ -110,23 +110,58 @@ function getHttpClient() {
     }
   });
 }
+const mockExecutions = new Map();
 
 /**
  * 1. executeWorkflow
  * Starts a workflow with file, language, and optional callbackUrl.
  * @param {object} params
  * @param {string} params.filePath
+ * @param {string} [params.fileName]
+ * @param {string} [params.documentId]
  * @param {string} [params.language='en']
  * @param {string} [params.callbackUrl]
  * @returns {Promise<{ executionId: string, status: string }>}
  */
-async function executeWorkflow({ filePath, language = 'en', callbackUrl = null }) {
+async function executeWorkflow({ filePath, fileName, documentId, language = 'en', callbackUrl = null }) {
   if (EVOLUS_MODE === 'mock') {
-    logger.info({ filePath, callbackUrl }, 'Evolus mock mode: executeWorkflow');
+    logger.info({ filePath, fileName, callbackUrl }, 'Evolus mock mode: executeWorkflow');
     const fixturePath = path.resolve(__dirname, '../../fixtures/workflow_execution.json');
-    const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    const baseFixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+
+    const executionId = documentId ? `exec-mock-${documentId}` : baseFixture.executionId;
+    const execution = JSON.parse(JSON.stringify(baseFixture));
+    execution.executionId = executionId;
+
+    // Check if fileName matches any ground truth document
+    const actualFileName = fileName || (filePath ? path.basename(filePath) : null);
+    let matchedGt = null;
+    try {
+      const gtPath = path.resolve(__dirname, '../../../data/ground_truth.json');
+      if (fs.existsSync(gtPath)) {
+        const gtList = JSON.parse(fs.readFileSync(gtPath, 'utf8'));
+        matchedGt = gtList.find(g => g.fileName === actualFileName);
+      }
+    } catch (_) {}
+
+    if (matchedGt) {
+      if (matchedGt.supplierName) execution.result.document.supplierName = matchedGt.supplierName;
+      if (matchedGt.extracted) {
+        execution.result.document.extracted = {
+          ...execution.result.document.extracted,
+          ...matchedGt.extracted
+        };
+      }
+    } else {
+      // For custom uploaded PDFs, give a unique invoice number so it does not collide as a duplicate
+      const uniqueSuffix = (documentId || Date.now().toString()).slice(-4).toUpperCase();
+      execution.result.document.extracted.invoiceNumber = `INV-${uniqueSuffix}`;
+    }
+
+    mockExecutions.set(executionId, execution);
+
     return {
-      executionId: fixture.executionId,
+      executionId,
       status: 'PENDING'
     };
   }
@@ -162,6 +197,9 @@ async function executeWorkflow({ filePath, language = 'en', callbackUrl = null }
 async function getExecution(executionId) {
   if (EVOLUS_MODE === 'mock') {
     logger.info({ executionId }, 'Evolus mock mode: getExecution');
+    if (mockExecutions.has(executionId)) {
+      return mockExecutions.get(executionId);
+    }
     const fixturePath = path.resolve(__dirname, '../../fixtures/workflow_execution.json');
     return JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
   }

@@ -84,7 +84,7 @@ export default function Metrics() {
         <p className="text-sm text-amd-sub mt-0.5">Honest reporting — "not measured yet" until evaluation runs</p>
       </div>
 
-      {/* AMD GPU hero banner */}
+      {/* Local Model hero banner */}
       <div className="card border-amd-red/30 overflow-hidden relative"
         style={{ background: 'linear-gradient(135deg, #0A0A0A 0%, #150000 60%, #1A0000 100%)' }}>
         {/* Glow blob */}
@@ -93,10 +93,12 @@ export default function Metrics() {
         <div className="relative flex items-center gap-6">
           <div className="text-5xl">⚡</div>
           <div>
-            <p className="text-xs text-amd-red uppercase tracking-widest mb-0.5">AMD GPU</p>
-            <p className="text-2xl font-bold text-amd-text">{gpu.name || '—'}</p>
+            <p className="text-xs text-amd-red uppercase tracking-widest mb-0.5">Local LLM (Ollama)</p>
+            <p className="text-2xl font-bold text-amd-text font-mono">
+              {gpu.model || 'llama3.2:1b'}
+            </p>
             <p className="text-sm text-amd-sub mt-0.5">
-              Model: <span className="font-semibold text-amd-text">{gpu.model || '—'}</span>
+              Runtime: <span className="font-semibold text-amd-text">{gpu.name || 'Local Ollama'}</span>
             </p>
           </div>
           <div className="ml-auto flex gap-8">

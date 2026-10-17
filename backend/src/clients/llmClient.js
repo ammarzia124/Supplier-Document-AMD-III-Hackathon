@@ -197,8 +197,11 @@ async function generate({ language, supplierName, issues, extracted = {} }) {
   const costEstimate = USD_PER_1K_TOKENS > 0 && totalTokens
     ? Number(((totalTokens / 1000) * USD_PER_1K_TOKENS).toFixed(6))
     : null;
+  const tokensPerSecond = (totalTokens && modelMs > 0)
+    ? Math.round((totalTokens / modelMs) * 1000)
+    : null;
 
-  return { explanation, reply, modelMs, costEstimate, totalTokens };
+  return { explanation, reply, modelMs, costEstimate, totalTokens, tokensPerSecond };
 }
 
 module.exports = { generate, resolveEndpoint, parseResponse, sanitize, extractText };

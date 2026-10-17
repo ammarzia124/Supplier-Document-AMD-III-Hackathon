@@ -134,18 +134,32 @@ export default function DocumentDetail() {
           </div>
         </div>
 
-        {/* Timing chips */}
+        {/* Timing & Model telemetry chips */}
         {doc.timing && (
-          <div className="flex gap-3 shrink-0">
+          <div className="flex gap-2 shrink-0 flex-wrap justify-end">
             <div className="card py-2 px-3 text-center">
               <p className="text-xs text-amd-sub">Total</p>
               <p className="text-lg font-bold text-amd-text">{doc.timing.totalMs} ms</p>
             </div>
             <div className="card py-2 px-3 text-center border-amd-red/30"
               style={{ background: 'rgba(176,0,16,0.08)' }}>
-              <p className="text-xs text-amd-red">AMD Model</p>
+              <p className="text-xs text-amd-red">Model Latency</p>
               <p className="text-lg font-bold text-amd-redGlow">{doc.timing.modelMs} ms</p>
             </div>
+            {doc.tokensPerSecond != null && (
+              <div className="card py-2 px-3 text-center border-purple-900/50"
+                style={{ background: 'rgba(80,0,120,0.10)' }}>
+                <p className="text-xs text-purple-400">Tokens / sec</p>
+                <p className="text-lg font-bold text-purple-300">{doc.tokensPerSecond}</p>
+              </div>
+            )}
+            {doc.localModel && (
+              <div className="card py-2 px-3 text-center border-amd-red/40"
+                style={{ background: 'rgba(176,0,16,0.12)' }}>
+                <p className="text-xs text-amd-red">Local Model</p>
+                <p className="text-sm font-bold text-amd-text font-mono">{doc.localModel}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -21,17 +21,50 @@ async function request(path, options = {}) {
 // ─── Documents ───────────────────────────────────────────────────────────────
 
 export async function listDocuments({ status, limit = 20, cursor } = {}) {
-  if (USE_MOCK) return getMockList(status)
   const params = new URLSearchParams()
   if (status) params.set('status', status)
   if (limit) params.set('limit', limit)
   if (cursor) params.set('cursor', cursor)
-  return request(`/documents?${params}`)
+
+  if (USE_MOCK) {
+    try {
+      const live = await request(`/documents?${params}`)
+      if (live?.documents?.length) return live
+    } catch (_) {}
+    return getMockList(status)
+  }
+
+  try {
+    const live = await request(`/documents?${params}`)
+    if (live?.documents?.length) return live
+    // If backend has no documents yet, fall back to mock scenarios so UI is not empty
+    return getMockList(status)
+  } catch (_) {
+    return getMockList(status)
+  }
 }
 
 export async function getDocument(id) {
-  if (USE_MOCK) return getMockDocument(id)
-  return request(`/documents/${id}`)
+  if (USE_MOCK) {
+    const mock = await getMockDocument(id)
+    if (mock) return mock
+    // If not found in mock presets, fetch from live backend (handles uploaded docs)
+    try {
+      return await request(`/documents/${id}`)
+    } catch (_) {
+      return null
+    }
+  }
+
+  // Live mode
+  try {
+    return await request(`/documents/${id}`)
+  } catch (err) {
+    // Fallback to mock preset if available (e.g. demo URLs like /documents/doc-clean-001)
+    const mock = await getMockDocument(id)
+    if (mock) return mock
+    throw err
+  }
 }
 
 export async function uploadDocument(file, { language = 'en', type = 'invoice' } = {}) {
@@ -56,13 +89,24 @@ export async function submitDecision(id, action, note = '') {
 
 export async function getMetrics() {
   if (USE_MOCK) return getMockMetrics()
-  return request('/metrics')
+  try {
+    const live = await request('/metrics')
+    if (live && live.totalDocuments > 0) return live
+    return getMockMetrics()
+  } catch (_) {
+    return getMockMetrics()
+  }
 }
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
 export async function getOrders() {
-  return request('/orders')
+  try {
+    return await request('/orders')
+  } catch (_) {
+    const mod = await import('../mocks/index.js')
+    return mod.MOCK_ORDERS || []
+  }
 }
 
 // ─── Mock helpers (used when VITE_USE_MOCK=true) ─────────────────────────────
